@@ -1,0 +1,73 @@
+<html>
+  <head>
+  <script type="text/javascript"> 
+    if (typeof web3 !== 'undefined') {
+      web3 = new Web3(web3.currentProvider);
+    } else {
+      // set the provider
+      web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.20.17:8545"));
+    }
+
+    // define contract address of owner
+    const address = "0xa86aa8a6f0f9e73c7800a55e99bc8869c9355159";
+    var startBalance = '';
+    var payment = '';
+
+    // get balance of owner address as callback function
+    web3.eth.getBalance(address, function(error, result){
+      if(!error) {
+        balance = result;
+        
+        // convert to ether
+        startBalance = web3.fromWei(balance, "ether");
+        console.log(new Date() + `: Balance [${address}]: ${startBalance}`);
+        
+        // update html
+        document.getElementById('address').innerText = 'Address: ' + address;
+        document.getElementById('balance').innerText = 'Balance: ' + startBalance ;
+
+      } else
+          console.error(error);
+    });
+
+    // create listening filter
+    var filter = web3.eth.filter('latest');
+
+    filter.watch((err, res) => {
+      if (err) {
+        console.log(`Watch error: ${err}`);
+      } else {
+    
+        // call getBalance when next block arrives
+        web3.eth.getBalance(address, (err, bal) => {
+          if (err) {
+            console.log(`getBalance error: ${err}`);
+          } else {
+            balance = web3.fromWei(bal, "ether");
+            payment = balance.toNumber() - startBalance.toNumber();
+            //payment = web3.fromWei(payment, "ether");
+            console.log(new Date() + `: Balance [${address}]: ${payment}`);
+
+            //console.log(`Balance [${address}]: ${web3.fromWei(payment, "ether")}`);
+            //console.log('Balance: ' + balance.toNumber());
+            //console.log('Start Bal: ' + startBalance.toNumber());
+            
+            document.getElementById('payment').innerText = 'Payment: ' + payment ;
+            startBalance = balance;
+            document.getElementById('balance').innerText = 'Balance: ' + startBalance ;
+          }
+        });
+      }
+    });
+    </script>
+  </head>
+  <body>
+<!-- http://theholmesoffice.com/how-to-build-a-simple-webpage-in-node-js/ -->
+    <h1>Payment page</h1>
+    <div><img src="0xa86aa8a6f0f9e73c7800a55e99bc8869c9355159.jpg" alt="0xa86aa8a6f0f9e73c7800a55e99bc8869c9355159" height="200" width="200"></div>
+    <div id="address"></div>
+    <div id="balance"></div>
+    <div id="payment"></div>
+
+  </body>
+</html>
