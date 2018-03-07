@@ -1,4 +1,4 @@
-onst fs = require("fs");
+const fs = require("fs");
 var shell = require('shelljs');
 
 Web3 = require('web3');
